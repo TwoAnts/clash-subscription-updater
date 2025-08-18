@@ -33,6 +33,12 @@ func (u *HttpUpdater) SetProxies(proxies []overrider.Proxy) {
 }
 
 func (u *HttpUpdater) Update() (bool, error) {
+	_, err := os.Stat(u.target)
+	if os.IsNotExist(err) {
+		// 避免主动创建配置文件
+		return false, nil
+	}
+
 	resp, err := http.Get(u.url)
 	if err != nil {
 		return false, err
@@ -77,10 +83,6 @@ func (u *HttpUpdater) Update() (bool, error) {
 		}
 	}
 
-	_, err = os.Stat(u.target)
-	if os.IsNotExist(err) {
-		os.Create(u.target)
-	}
 	f, err := os.Open(u.target)
 	if err != nil {
 		return false, err
