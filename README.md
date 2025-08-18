@@ -10,11 +10,13 @@ yay -S clash-subscription-updater-git
 
 ## Usage
 ```shell
--d, --clash-config-dir string    config directory of clash (default "/home/fengkx/.config/clash")
--h, --help                      show this message
--i, --interval int              interval to fetch configuration (minutes) (default 60)
-    --override                  override the existed config file
--v, --version                   show current version
+-f, --clash-config string            config file of clash (default "/root/.config/clash/config.yaml")
+-c, --controller-url string          controller url (default "http://127.0.0.1:9090")
+-s, --controller-url-secret string   controller secret
+-h, --help                           show this message
+-i, --interval int                   interval to fetch configuration (minutes) (default 60)
+    --override                       override the existed config file
+-v, --version                        show current version
 
 ```
 
@@ -23,7 +25,9 @@ you can add additional clash configs in the file to patch(prepend) to the subscr
 
 for example
 ```yaml
-clash-config-dir: /home/fengkx/.config/clash
+clash-config: /home/fengkx/.config/clash/config.yaml
+controller-url: http://127.0.0.1:9090
+controller-url-secret: "secret"
 help: true
 interval: 60
 override: true

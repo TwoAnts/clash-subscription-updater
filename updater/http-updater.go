@@ -1,82 +1,112 @@
 package updater
 
 import (
-	"clash-subscription-updater/overider"
+	"bytes"
+	"clash-subscription-updater/overrider"
 	"errors"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type HttpUpdater struct {
 	url             string
 	interval        int
-	dir             string
-	overrideRules   []overider.Rule
-	overrideProxies []overider.Proxy
+	target          string
+	overrideRules   []overrider.Rule
+	overrideProxies []overrider.Proxy
+	lastContent     []byte // 用于判断内容是否有更新
 }
 
-func NewHttpUpdater(url string, dir string, interval int) HttpUpdater {
-	return HttpUpdater{url: url, interval: interval, dir: dir}
+func NewHttpUpdater(url string, target string, interval int) HttpUpdater {
+	return HttpUpdater{url: url, interval: interval, target: target}
 }
 
-func (u *HttpUpdater) SetRules(rules []overider.Rule) {
+func (u *HttpUpdater) SetRules(rules []overrider.Rule) {
 	u.overrideRules = rules
 }
 
-func (u *HttpUpdater) SetProxies(proxies []overider.Proxy) {
+func (u *HttpUpdater) SetProxies(proxies []overrider.Proxy) {
 	u.overrideProxies = proxies
 }
 
-func (u *HttpUpdater) Update() error {
+func (u *HttpUpdater) Update() (bool, error) {
 	resp, err := http.Get(u.url)
 	if err != nil {
-		return err
+		return false, err
 	}
-	buf, err := ioutil.ReadAll(resp.Body)
+	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return false, err
 	}
-	var c map[string]interface{}
+
+	var c map[string]any
 	yaml.Unmarshal(buf, &c)
-	proxies, ok := c["proxies"].([]interface{})
-	if !ok {
-		return errors.New("error fetch upstream subscription url")
-	}
-	patchedProxies := make([]interface{}, 0, len(proxies)+len(u.overrideProxies))
+
+	var patchedProxies []any
 	for _, p := range u.overrideProxies {
 		patchedProxies = append(patchedProxies, p)
 	}
-	for _, p := range proxies {
-		patchedProxies = append(patchedProxies, p)
+	if p, ok := c["proxies"]; ok && p != nil {
+		proxies, ok := p.([]any)
+		if !ok {
+			return false, errors.New("parse proxies failed")
+		}
+		patchedProxies = append(patchedProxies, proxies...)
 	}
 
-	rules := c["rules"].([]interface{})
-	patchedRules := make([]interface{}, 0, len(rules)+len(u.overrideRules))
+	var patchedRules []any
 	for _, r := range u.overrideRules {
 		patchedRules = append(patchedRules, r)
 	}
-	for _, r := range rules {
-		patchedRules = append(patchedRules, r)
+	if r, ok := c["rules"]; ok && r != nil {
+		rules, ok := r.([]any)
+		if !ok {
+			return false, errors.New("parse rules failed")
+		}
+		patchedRules = append(patchedRules, rules...)
 	}
 
-	savedPath := u.dir + "/config.yaml"
-	_, err = os.Stat(savedPath)
+	var proxyGroups []any
+	if g, ok := c["proxy-groups"]; ok && g != nil {
+		proxyGroups, ok = g.([]any)
+		if !ok {
+			return false, errors.New("parse proxy-groups failed")
+		}
+	}
+
+	_, err = os.Stat(u.target)
 	if os.IsNotExist(err) {
-		os.Create(savedPath)
+		os.Create(u.target)
 	}
-	f, err := os.Open(savedPath)
-	defer f.Close()
+	f, err := os.Open(u.target)
 	if err != nil {
-		return err
+		return false, err
 	}
+	defer f.Close()
 	c["proxies"] = patchedProxies
+	if len(patchedProxies) == 0 {
+		delete(c, "proxies")
+	}
+	c["proxy-groups"] = proxyGroups
+	if len(proxyGroups) == 0 {
+		delete(c, "proxy-groups")
+	}
 	c["rules"] = patchedRules
+	if len(patchedRules) == 0 {
+		delete(c, "rules")
+	}
 	out, err := yaml.Marshal(c)
 	if err != nil {
-		return err
+		return false, err
 	}
-	ioutil.WriteFile(savedPath, out, 0644)
-	return nil
+	os.WriteFile(u.target, out, 0644)
+	// 判断内容是否变化
+	if bytes.Equal(u.lastContent, buf) {
+		return false, nil
+	}
+	u.lastContent = buf
+	return true, nil
 }

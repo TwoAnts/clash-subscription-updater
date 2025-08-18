@@ -1,4 +1,4 @@
-package overider
+package overrider
 
 type Patch struct {
 	Port               int
@@ -23,3 +23,5 @@ type Proxy struct {
 	WsPath   string
 	WsHeader map[string]string
 }
+
+type ProxyGroup any

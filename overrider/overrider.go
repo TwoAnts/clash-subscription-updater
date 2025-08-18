@@ -1,4 +1,4 @@
-package overider
+package overrider
 
 type Rule string
 type Overrider interface {
