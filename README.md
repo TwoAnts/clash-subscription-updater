@@ -23,8 +23,9 @@ you can add additional clash configs in the file to patch(prepend) to the subscr
 
 for example
 ```yaml
+subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
 clash-config: /home/fengkx/.config/clash/config.yaml
-controller-url: http://127.0.0.1:9090
+controller-url: http://127.0.0.1:9090 # 用于通知clash重新加载配置
 controller-url-secret: "secret"
 interval: 60
 override: true
@@ -35,7 +36,6 @@ proxies:
   type: http
 rules:
 - DOMAIN-SUFFIX,163.com,NeteaseMusic,
-subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
 ```
 `proxies` and `rules` will prepend to existed field
 
@@ -46,4 +46,25 @@ or
 ./clash-subscription-updater -f xxx/config.yaml -c controller-url -s secret -i 60 -t sub-url
 # if needs proxy
 HTTP_PROXY=proxy-url HTTPS_PROXY=proxy-url ./clash-subscription-updater -f xxx/config.yaml -c controller-url -s secret -i 60 -t sub-url
+```
+
+# docker compose
+
+```yaml
+services:
+  clash:
+    ...
+    volumes:
+      - ./profiles/config.yaml:/root/.config/clash/config.yaml
+  yacd:
+    ...
+  updater:
+    image: rainbowhu/clash-subscription-updater
+    environment:
+      HTTPS_PROXY: "http://CLASH_IP:CLASH_PORT" # If updating the subscription requires a proxy
+    container_name: clash-subscription-updater
+    volumes:
+      - ./profiles/config.yaml:/root/config.yaml # config.yaml is mounted both to clash and to updater.
+      - ./profiles/clash-subscription-updater.yaml:/root/clash-subscription-updater.yaml # updater config file
+    restart: unless-stopped
 ```
