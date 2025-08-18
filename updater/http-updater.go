@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"clash-subscription-updater/overrider"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -49,7 +50,9 @@ func (u *HttpUpdater) Update() (bool, error) {
 	}
 
 	var c map[string]any
-	yaml.Unmarshal(buf, &c)
+	if err := yaml.Unmarshal(buf, &c); err != nil {
+		return false, fmt.Errorf("parse yaml failed: %w", err)
+	}
 
 	var patchedProxies []any
 	for _, p := range u.overrideProxies {
@@ -88,19 +91,30 @@ func (u *HttpUpdater) Update() (bool, error) {
 		return false, err
 	}
 	defer f.Close()
-	c["proxies"] = patchedProxies
+
+	fb, err := io.ReadAll(f)
+	if err != nil {
+		return false, fmt.Errorf("read %s failed: %w", u.target, err)
+	}
+
+	var o map[string]any
+	if err := yaml.Unmarshal(fb, &o); err != nil {
+		return false, fmt.Errorf("parse %s failed: %w", u.target, err)
+	}
+
+	o["proxies"] = patchedProxies
 	if len(patchedProxies) == 0 {
-		delete(c, "proxies")
+		delete(o, "proxies")
 	}
-	c["proxy-groups"] = proxyGroups
+	o["proxy-groups"] = proxyGroups
 	if len(proxyGroups) == 0 {
-		delete(c, "proxy-groups")
+		delete(o, "proxy-groups")
 	}
-	c["rules"] = patchedRules
+	o["rules"] = patchedRules
 	if len(patchedRules) == 0 {
-		delete(c, "rules")
+		delete(o, "rules")
 	}
-	out, err := yaml.Marshal(c)
+	out, err := yaml.Marshal(o)
 	if err != nil {
 		return false, err
 	}
