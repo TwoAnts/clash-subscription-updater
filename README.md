@@ -1,11 +1,9 @@
 # clash subscription updater
 > Update the clash `config.yaml` peroidly with optional patch
 
-## Install
-### ArchLinux
-Install from AUR `clash-subscription-updater-git`
-```sh
-yay -S clash-subscription-updater-git
+## Build
+```shell
+env GOOS=linux GOARCH=amd64 go build -o ./clash-subscription-updater
 ```
 
 ## Usage
@@ -28,7 +26,6 @@ for example
 clash-config: /home/fengkx/.config/clash/config.yaml
 controller-url: http://127.0.0.1:9090
 controller-url-secret: "secret"
-help: true
 interval: 60
 override: true
 proxies:
@@ -43,3 +40,10 @@ subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
 `proxies` and `rules` will prepend to existed field
 
 Only `proxies` and `rules` can be patched for now.
+
+or
+```shell
+./clash-subscription-updater -f xxx/config.yaml -c controller-url -s secret -i 60 -t sub-url
+# if needs proxy
+HTTP_PROXY=proxy-url HTTPS_PROXY=proxy-url ./clash-subscription-updater -f xxx/config.yaml -c controller-url -s secret -i 60 -t sub-url
+```
