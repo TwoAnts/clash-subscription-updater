@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"time"
 
 	"github.com/jasonlvhit/gocron"
 	"github.com/mitchellh/mapstructure"
@@ -115,6 +116,9 @@ func main() {
 		}
 	}
 	task()
+	// try more times
+	time.AfterFunc(2*time.Minute, task)
+	time.AfterFunc(4*time.Minute, task)
 	s := gocron.NewScheduler()
 	s.Every(uint64(viper.GetInt("interval"))).Minute().Do(task)
 	<-s.Start()
