@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
 ```
 
-
+clash-subscription-updater.yaml
 ```yaml
 subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
 controller-url: http://clash-ip:clash-control-port # for notifying Clash to reload the configuration.
