@@ -20,7 +20,7 @@ func printVersion() {
 	fmt.Println(version())
 }
 
-func loadConfig() error {
+func loadArgs() {
 	defaultTarget := os.Getenv("HOME") + "/.config/clash/config.yaml"
 	defaultControllerUrl := "http://127.0.0.1:9090"
 	pflag.StringP("clash-config", "f", defaultTarget, "config file of clash")
@@ -33,7 +33,9 @@ func loadConfig() error {
 	pflag.BoolP("version", "v", false, "show current version")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
+}
 
+func loadConfig() error {
 	viper.SetConfigName("clash-subscription-updater")
 	viper.AddConfigPath("$HOME/.config")
 	viper.AddConfigPath(".")
@@ -46,12 +48,7 @@ func loadConfig() error {
 }
 
 func main() {
-	log.SetOutput(os.Stdout)
-	if err := loadConfig(); err != nil {
-		log.Printf("load config failed: %v", err)
-		return
-	}
-	log.Printf("load config: %s", viper.ConfigFileUsed())
+	loadArgs()
 	if viper.GetBool("help") {
 		pflag.PrintDefaults()
 		return
@@ -62,6 +59,13 @@ func main() {
 		fmt.Println()
 		return
 	}
+
+	log.SetOutput(os.Stdout)
+	if err := loadConfig(); err != nil {
+		log.Printf("load config failed: %v", err)
+		return
+	}
+	log.Printf("load config: %s", viper.ConfigFileUsed())
 	url := viper.GetString("subscription-url")
 	if url == "" {
 		log.Fatal("subscription url is required")
