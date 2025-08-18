@@ -27,4 +27,4 @@ COPY --from=builder /app/clash-subscription-updater .
 # require mount xxx/clash/config.yaml:/root/config.yaml
 
 # Command to run the application
-CMD ["./clash-subscription-updater"]
+CMD ["./clash-subscription-updater", "-f", "/root/config.yaml"]

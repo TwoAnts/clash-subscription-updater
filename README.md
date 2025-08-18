@@ -25,7 +25,7 @@ for example
 ```yaml
 subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
 clash-config: /home/fengkx/.config/clash/config.yaml
-controller-url: http://127.0.0.1:9090 # 用于通知clash重新加载配置
+controller-url: http://127.0.0.1:9090 # for notifying Clash to reload the configuration.
 controller-url-secret: "secret"
 interval: 60
 override: true
@@ -67,4 +67,12 @@ services:
       - ./profiles/config.yaml:/root/config.yaml # config.yaml is mounted both to clash and to updater.
       - ./profiles/clash-subscription-updater.yaml:/root/clash-subscription-updater.yaml # updater config file
     restart: unless-stopped
+```
+
+
+```yaml
+subscription-url: https://clash-rule-set-flatten.vercel.app/flat?url=xxxxxxxxx
+controller-url: http://clash-ip:clash-control-port # for notifying Clash to reload the configuration.
+controller-url-secret: "secret"
+interval: 60
 ```
