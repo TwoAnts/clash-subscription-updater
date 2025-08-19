@@ -32,4 +32,12 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           mkdir -p build
-          go build -o build/clash-subscription-updater-${{ matrix.goos }}-${{ matrix.goarch }}
+          go build -o build/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: build/*
+          retention-days: 3
+          compression-level: 6
