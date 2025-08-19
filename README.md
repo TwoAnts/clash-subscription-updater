@@ -1,4 +1,8 @@
 # clash subscription updater
+[![Build and Push Docker Image](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml)
+[![Build binary for release](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 > Update the clash `config.yaml` peroidly with optional patch
 
 ## Build
@@ -18,8 +22,8 @@ env GOOS=linux GOARCH=amd64 go build -o ./clash-subscription-updater
 
 ```
 
-It will init a config file in `$HOME/.config/clash-subscription-updater.yaml`
-you can add additional clash configs in the file to patch(prepend) to the subscription.
+It will find `clash-subscription-updater.yaml` in `$HOME/.config/` and current directory, 
+you can add additional clash configs in the file to patch(prepend) to the subscription or just use command flags only.
 
 for example
 ```yaml
@@ -30,12 +34,12 @@ controller-url-secret: "secret"
 interval: 60
 override: true
 proxies:
-- name: NeteaseMusic
-  port: 9726
-  server: 127.0.0.1
-  type: http
+  - name: NeteaseMusic
+    port: 9726
+    server: 127.0.0.1
+    type: http
 rules:
-- DOMAIN-SUFFIX,163.com,NeteaseMusic,
+  - DOMAIN-SUFFIX,163.com,NeteaseMusic,
 ```
 `proxies` and `rules` will prepend to existed field
 
