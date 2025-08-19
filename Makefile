@@ -10,6 +10,6 @@ build_all:
 	env GOOS=linux GOARCH=mipsle   go build -o ./build/clash-subscription-updater-linux-mipsle
 	env GOOS=linux GOARCH=mips64   go build -o ./build/clash-subscription-updater-linux-mips64
 	env GOOS=linux GOARCH=mips64le go build -o ./build/clash-subscription-updater-linux-mips64le
-	env GOOS=darwin GOARCH=amd64   go build -o ./build/clash-subscription-updater-macos-amd64
+	env GOOS=darwin GOARCH=amd64   go build -o ./build/clash-subscription-updater-darwin-amd64
 
 .PHONY: build
