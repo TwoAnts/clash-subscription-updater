@@ -49,6 +49,11 @@ func (u *HttpUpdater) Update() (bool, error) {
 		return false, err
 	}
 
+	// 判断内容是否变化，如果不变化，则避免更新
+	if bytes.Equal(u.lastContent, buf) {
+		return false, nil
+	}
+
 	var c map[string]any
 	if err := yaml.Unmarshal(buf, &c); err != nil {
 		return false, fmt.Errorf("parse yaml failed: %w", err)
@@ -118,11 +123,11 @@ func (u *HttpUpdater) Update() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	os.WriteFile(u.target, out, 0644)
-	// 判断内容是否变化
-	if bytes.Equal(u.lastContent, buf) {
-		return false, nil
+
+	if err := os.WriteFile(u.target, out, 0644); err != nil {
+		return false, fmt.Errorf("write %s failed: %w", u.target, err)
 	}
+
 	u.lastContent = buf
 	return true, nil
 }
