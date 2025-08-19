@@ -1,6 +1,6 @@
 # clash subscription updater
-[![Build and Push Docker Image](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml)
-[![Build binary for release](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml)
+[![Build Docker Image](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/docker.yaml)
+[![Build for Release](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml/badge.svg)](https://github.com/TwoAnts/clash-subscription-updater/actions/workflows/binary-release.yaml)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
 > Update the clash `config.yaml` peroidly with optional patch
